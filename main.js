@@ -19,7 +19,8 @@ let list = [];
 
 AddButton.addEventListener("click", addTask);
 
-TaskInput.addEventListener("keyup", function (event) {
+
+TaskInput.addEventListener("keyup", function (event) { //엔터로 입력
     if (event.keyCode === 13) {
         addTask(event);
     }
@@ -88,7 +89,6 @@ function toggleComplete(id) {
             break;
         }
     }
-    console.log("토글")
     filter();
 }
 
@@ -103,9 +103,9 @@ function DeleteTask(id) {
             taskList.splice(i, 1) //i번째에 있는 아이템을 1개만 삭제할게!
         }
     }
-    console.log(taskList);
     filter();
 }
+
 
 function filter(event) {
 
@@ -132,6 +132,5 @@ function filter(event) {
             }
         }
     }
-    console.log(filterList)
     render();
 }
