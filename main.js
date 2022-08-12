@@ -15,11 +15,20 @@ let tabs = document.querySelectorAll(".task-tabs div"); //조건에 만족하는
 let taskList = [];
 let mode = "all";
 let filterList = [];
+let list = [];
 
 AddButton.addEventListener("click", addTask);
 
+TaskInput.addEventListener("keyup", function (event) {
+    if (event.keyCode === 13) {
+        addTask(event);
+    }
+})
+
 for (let i = 1; i < tabs.length; i++) { //underline은 필요없기 때문에 1부터 시작
-    tabs[i].addEventListener("click", function (event) { filter(event) })
+    tabs[i].addEventListener("click", function (event) {
+        filter(event)
+    })
 }
 
 
@@ -29,6 +38,7 @@ function addTask() {
         taskContent: TaskInput.value,
         isComplete: false
     };
+
     taskList.push(task);
     render();
     TaskInput.value = "";
@@ -38,7 +48,7 @@ function addTask() {
 //그림을 그려주는 곳. UI 업데이트!
 function render() {
 
-    let list = [];
+    let resultHTML = "";
 
     if (mode == "all") {
         list = taskList;
@@ -46,8 +56,6 @@ function render() {
     else if (mode == "ongoing" || mode == "done") {
         list = filterList;
     }
-
-    let resultHTML = "";
 
     for (let i = 0; i < list.length; i++) {
         if (list[i].isComplete == true) {
@@ -72,15 +80,16 @@ function render() {
     document.getElementById("task-board").innerHTML = resultHTML; //task보드에 resultHTML을 붙여넣을거야!
 }
 
+//체크되었다 안되었다
 function toggleComplete(id) {
     for (let i = 0; i < taskList.length; i++) {
         if (taskList[i].id == id) {
             taskList[i].isComplete = !taskList[i].isComplete; //! '아니다'라는 뜻임. 즉, 값의 반대편을 가져옴. 스위치처럼 왔다라 갔다리 할 때
-            render();
             break;
         }
     }
-
+    console.log("토글")
+    filter();
 }
 
 //random id 작성하기
@@ -89,45 +98,40 @@ function randomIDgenerate() {
 }
 
 function DeleteTask(id) {
-    
-
     for (let i = 0; i < taskList.length; i++) {
         if (taskList[i].id == id) {
-            taskList.splice(i,1) //i번째에 있는 아이템을 1개만 삭제할게!
-            render();
-            break;
+            taskList.splice(i, 1) //i번째에 있는 아이템을 1개만 삭제할게!
         }
     }
     console.log(taskList);
-    console.log("삭제하자!");
+    filter();
 }
 
 function filter(event) {
 
-    mode = event.target.id;
     filterList = [];
 
-    document.getElementById("under-line").style.width = event.target.offsetWidth + "px";
-    document.getElementById("under-line").style.top = event.target.offsetTop +  event.target.offsetHeight + "px";
-    document.getElementById("under-line").style.left = event.target.offsetLeft + "px";
-
-    if (mode == "all") {
-        render();
+    if (event) {
+        mode = event.target.id;
+        document.getElementById("under-line").style.width = event.target.offsetWidth + "px";
+        document.getElementById("under-line").style.top = event.target.offsetTop + event.target.offsetHeight + "px";
+        document.getElementById("under-line").style.left = event.target.offsetLeft + "px";
     }
-    else if (mode == "ongoing") {
+
+    if (mode == "ongoing") {
         for (let i = 0; i < taskList.length; i++) {
             if (taskList[i].isComplete == false) { //아직 진행중인 item
                 filterList.push(taskList[i]);
             }
         }
-        render();
     }
-    else if(mode == "done"){
+    else if (mode == "done") {
         for (let i = 0; i < taskList.length; i++) {
             if (taskList[i].isComplete == true) { //끝난 item
                 filterList.push(taskList[i]);
             }
         }
-        render();
     }
+    console.log(filterList)
+    render();
 }
