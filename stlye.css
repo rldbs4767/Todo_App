@@ -19,6 +19,7 @@ body{
 }
 .task-tabs div{
     padding: 1em;
+    cursor: pointer;
 }
 #under-line{
     height: 4px;
@@ -28,15 +29,14 @@ body{
     left: 0px;
     top: 52px;
     padding: 0px;
+    transition: 0.5s;
 }
 .task{
     display : flex;
     justify-content: space-between;
     padding: 1em
+    
 }
 .task-done{
     text-decoration: line-through;
-}
-.task-tabs div{
-    cursor: pointer;
 }

@@ -1,55 +1,39 @@
-// 유저가 값을 입력한다.
-// +버튼을 클릭하면 item이 추가된다
-// 유저가 delete 버튼을 누르면 item이 삭제된다
-// check 버튼을 누르면 할 일이 끝나면서 밑줄이 간다
-// 진행중, 끝남 탭을 누르면 언더바가 이동한다.
-// 끝남탭은 끝난 아이템만, 진행중 탭은 진행중인 아이템만 나온다.
-// 전체 탭을 누르면 다시 전체 아이템으로 나온다.
-// 1.check 버튼을 클릭하는 순간 true -> false
-// 2.true이면 끝난걸로 간주하고 밑줄 보여주기
-// 3.false이면 안끝난걸로 간주하고 그대로 
-
-let TaskInput = document.getElementById("task-input");
+let UserInput = document.getElementById("task-input");
 let AddButton = document.getElementById("add-button");
-let tabs = document.querySelectorAll(".task-tabs div"); //조건에 만족하는 모든걸 가져옴
+let TaskTabs = document.querySelectorAll(".task-tabs div");
+
 let taskList = [];
-let mode = "all";
 let filterList = [];
 let list = [];
+let isComplete;
+let mode = "all";
 
-AddButton.addEventListener("click", addTask);
 
 
-TaskInput.addEventListener("keyup", function (event) { //엔터로 입력
-    if (event.keyCode === 13) {
-        addTask(event);
-    }
-})
+for (let i = 1; i < TaskTabs.length; i++) {
 
-for (let i = 1; i < tabs.length; i++) { //underline은 필요없기 때문에 1부터 시작
-    tabs[i].addEventListener("click", function (event) {
-        filter(event)
-    })
+    TaskTabs[i].addEventListener("click", (event) => {
+        filter(event);
+    });
+
 }
 
 
-function addTask() {
+//task 생성
+const Create = () => {
     let task = {
-        id: randomIDgenerate(), //각각의 item의 고유한 id번호를 만들어줌 
-        taskContent: TaskInput.value,
+        inputText: UserInput.value,
+        id: RandomID(),   //task마다 고유한 id값을 가짐 
         isComplete: false
     };
-
     taskList.push(task);
+    console.log(taskList)
     render();
-    TaskInput.value = "";
-
 }
 
-//그림을 그려주는 곳. UI 업데이트!
-function render() {
-
-    let resultHTML = "";
+//task 데이터 생성시, 스타일 구현하는 함수
+const render = () => {
+    let TextHTML = '';
 
     if (mode == "all") {
         list = taskList;
@@ -60,77 +44,93 @@ function render() {
 
     for (let i = 0; i < list.length; i++) {
         if (list[i].isComplete == true) {
-            resultHTML += `<div class="task">
-            <div class="task-done">${list[i].taskContent}</div>
-            <div>
-                <button onclick="toggleComplete('${list[i].id}')">check</button>
-                <button onclick="DeleteTask('${list[i].id}')">delete</button>
+            TextHTML += `<div class="task">
+            <div class="task-done">
+                    ${list[i].inputText}
             </div>
-        </div>`;
+            <div>
+                 <button type="button" onclick="toggle('${list[i].id}')">check</button>
+                 <button type="button" onclick="Delete('${list[i].id}')">delete</button>
+            </div>
+        </div>`
         }
         else {
-            resultHTML += `<div class="task">
-        <div>${list[i].taskContent}</div>
-        <div>
-            <button onclick="toggleComplete('${list[i].id}')">check</button>
-            <button onclick="DeleteTask('${list[i].id}')">delete</button>
-        </div>
-    </div>`;
+            TextHTML += `<div class="task">
+            <div>
+            ${list[i].inputText}
+            </div>
+            <div>
+                <button type="button" onclick="toggle('${list[i].id}')">check</button>
+                <button type="button" onclick="Delete('${list[i].id}')">delete</button>
+            </div>
+        </div>`
         }
     }
-    document.getElementById("task-board").innerHTML = resultHTML; //task보드에 resultHTML을 붙여넣을거야!
+    document.getElementById("task-board").innerHTML = TextHTML;
+
 }
 
-//체크되었다 안되었다
-function toggleComplete(id) {
-    for (let i = 0; i < taskList.length; i++) {
-        if (taskList[i].id == id) {
-            taskList[i].isComplete = !taskList[i].isComplete; //! '아니다'라는 뜻임. 즉, 값의 반대편을 가져옴. 스위치처럼 왔다라 갔다리 할 때
-            break;
-        }
-    }
-    filter();
-}
-
-//random id 작성하기
-function randomIDgenerate() {
-    return '_' + Math.random().toString(36).substr(2, 9);
-}
-
-function DeleteTask(id) {
-    for (let i = 0; i < taskList.length; i++) {
-        if (taskList[i].id == id) {
-            taskList.splice(i, 1) //i번째에 있는 아이템을 1개만 삭제할게!
-        }
-    }
-    filter();
-}
-
-
-function filter(event) {
+const filter = (event) => {
 
     filterList = [];
 
+    //필터클릭 시, 언더바 스타일부분
     if (event) {
         mode = event.target.id;
-        document.getElementById("under-line").style.width = event.target.offsetWidth + "px";
-        document.getElementById("under-line").style.top = event.target.offsetTop + event.target.offsetHeight + "px";
-        document.getElementById("under-line").style.left = event.target.offsetLeft + "px";
+        document.getElementById("under-line").style.left = event.currentTarget.offsetLeft + "px";
+        document.getElementById("under-line").style.width = event.currentTarget.offsetWidth + "px";
+        document.getElementById("under-line").style.top = event.currentTarget.offsetTop + event.currentTarget.offsetHeight + "px";
     }
 
     if (mode == "ongoing") {
         for (let i = 0; i < taskList.length; i++) {
-            if (taskList[i].isComplete == false) { //아직 진행중인 item
+            if (taskList[i].isComplete == false) {
                 filterList.push(taskList[i]);
             }
         }
     }
     else if (mode == "done") {
         for (let i = 0; i < taskList.length; i++) {
-            if (taskList[i].isComplete == true) { //끝난 item
+            if (taskList[i].isComplete == true) {
                 filterList.push(taskList[i]);
             }
         }
     }
+
     render();
 }
+
+//task 체크여부 판단하는 함수
+const toggle = (id) => {
+    for (let i = 0; i < taskList.length; i++) {
+        if (taskList[i].id == id) {
+            taskList[i].isComplete = !(taskList[i].isComplete); //토글 on,off
+        }
+    }
+    filter();
+}
+
+//고유 id 생성하는 함수
+const RandomID = () => {
+    return '_' + Math.random().toString(36).substr(2, 9);
+}
+
+//task 삭제 함수
+const Delete = (id) => {
+    for(let i=0; i<taskList.length; i++){
+        if(taskList[i].id == id){
+            taskList.splice(i,1) //i번째에 1개의 데이터를 빼낸다.
+        }
+    }
+    console.log(taskList)
+    filter()
+}
+
+AddButton.addEventListener("click", Create); //호이스팅때문에,,,쫌 더 공부해보자,,,
+
+UserInput.addEventListener("keydown",(event)=>{
+    if(event.keyCode === 13){
+        Create();
+        UserInput.value = '';
+    }
+})
